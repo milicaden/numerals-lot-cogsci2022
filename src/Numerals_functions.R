@@ -57,13 +57,13 @@ use_weighted_complexity <- function(language_id, df, complexity){
 ###Informativeness-related functions
 # Compute the prior for a given number: power-law basic
 prior_sum = 0 #for normalization of prior probas
-for(i in 1:100){
+for(i in 1:99){
   prior_sum = prior_sum + i**(-2)
 }
 
 probaf <- function(state){
   number = as.numeric(state)
-  return(number**(-2)/prior_sum)
+  return((number**(-2))/prior_sum)
 }
 
 

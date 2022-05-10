@@ -39,6 +39,22 @@ filter = function(set){
     set = set[-unwanted]}
   return(set)
 }
+
+# Filter function: to ease further computations, we remove expressions which result in the same meaning as a simpler expression
+
+filter1_99 = function(set){
+  unwanted = c()
+  for(i in 1:length(set)){
+    if((as.numeric2(unlist(set[i])[2]) < 1)|(as.numeric2(unlist(set[i])[2]) > 99)){
+      unwanted = c(unwanted, i)
+    }
+  }
+  if(length(unwanted) >0){
+    set = set[-unwanted]}
+  return(set)
+}
+
+
 # Generate function for recursive application of higher_than, successor and +/- functions up to certain depth
 generate = function(depth, complexity_plus, complexity_minus, complexity_multiplicatiton, complexity_division){
     start = 2
@@ -55,14 +71,14 @@ generate = function(depth, complexity_plus, complexity_minus, complexity_multipl
               current_minus = c(paste0(first_element[1], "_minus_", second_element[1]), as.numeric2(first_element[2]) - as.numeric2(second_element[2]), as.numeric2(first_element[3]) + as.numeric2(second_element[3]) + complexity_minus)
               current_multiplication = c(paste0(first_element[1], "_multiplication_", second_element[1]), as.numeric2(first_element[2]) * as.numeric2(second_element[2]), as.numeric2(first_element[3]) + as.numeric2(second_element[3]) + complexity_multiplicatiton)
               current_division = c(paste0(first_element[1], "_division_", second_element[1]), as.numeric2(first_element[2]) / as.numeric2(second_element[2]), as.numeric2(first_element[3]) + as.numeric2(second_element[3]) + complexity_division)
-              
-              if(as.numeric2(current_plus[2])<100){
+              #due to computational constraints, we set 1000 as an upper limit for denotations that can be generated which take part in the expressions 1-99
+              if(as.numeric2(current_plus[2])<1000){
                 assign(nam, append(eval(parse(text = nam)), list(current_plus)))
               }
-              if(as.numeric2(current_minus[2])> 0 & as.numeric2(current_minus[2])<100){
+              if(as.numeric2(current_minus[2])> 0 & as.numeric2(current_minus[2])<1000){
                 assign(nam, append(eval(parse(text = nam)), list(current_minus)))
               }
-              if(as.numeric2(current_multiplication[2])<100){
+              if(as.numeric2(current_multiplication[2])<1000){
                 assign(nam, append(eval(parse(text = nam)), list(current_multiplication)))
               }
               if(is.integer(current_division[2])){
@@ -80,7 +96,10 @@ generate = function(depth, complexity_plus, complexity_minus, complexity_multipl
       all = c(all, eval(parse(text = paste0("set", i))))
     }
     
-    all_filtered = filter(all)
+    #remove things smaller than 1 and larger than 99
+    all_1_99 = filter1_99(all)
+    
+    all_filtered = filter(all_1_99)
     
     if(length(all_filtered) == 99){
       return(all_filtered)
@@ -103,7 +122,6 @@ primitive_classes = list(list(1,2,3), list(1,2), list(1), list(1,2,3,4), list(1,
                          list(1,2,3,5,10,20), list(1,2,5,10,20), list(1,5,10,20),
                          list(1,2,3,10,20), list(1,2,10,20), list(1,10,20), list(1,2,3,4,10,20), list(1,2,3,4,5,10,20), list(1,2,3,4,5,6,10,20), list(1,2,3,4,5,6,7,10,20), list(1,2,3,4,5,6,7,8,10,20),list(1,2,3,4,5,6,7,8,9,10,20)
                          )
-
 
 ####################################
 # Generation of LOT expressions for the meanings (Version 1: without passing through previously defined items)
